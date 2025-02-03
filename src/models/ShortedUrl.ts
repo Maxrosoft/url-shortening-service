@@ -4,6 +4,7 @@ const shortenedUrlSchema = new mongoose.Schema(
     {
         url: { type: String, required: true },
         shortCode: { type: String, required: true, unique: true },
+        accessCount: { type: Number, required: true, default: 0 },
     },
     { timestamps: true }
 );

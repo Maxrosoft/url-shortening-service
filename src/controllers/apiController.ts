@@ -18,6 +18,7 @@ interface ShortenedUrlI {
     shortCode: string;
     createdAt: string;
     updatedAt: string;
+    accessCount?: number;
 }
 
 class ApiController {
@@ -66,7 +67,7 @@ class ApiController {
     }
 
     async retrieveOriginalUrl(req: Request, res: Response, next) {
-        const shortCode: string = req.params.shortCode; //ac987ed5
+        const shortCode: string = req.params.shortCode;
 
         try {
             const found = await ShortenedUrl.findOne({
@@ -80,6 +81,9 @@ class ApiController {
                 };
                 return res.status(404).send(errorMessage);
             } else {
+                ++found.accessCount;
+                found.save();
+
                 const data: ShortenedUrlI = {
                     id: found._id.toString(),
                     url: found.url,
@@ -95,7 +99,7 @@ class ApiController {
     }
 
     async updateShortUrl(req: Request, res: Response, next) {
-        const shortCode: string = req.params.shortCode; //ac987ed5
+        const shortCode: string = req.params.shortCode;
         const { url } = req.body;
 
         try {
@@ -138,7 +142,7 @@ class ApiController {
     }
 
     async deleteShortUrl(req: Request, res: Response, next) {
-        const shortCode: string = req.params.shortCode; //ac987ed5
+        const shortCode: string = req.params.shortCode;
 
         try {
             const toDelete = await ShortenedUrl.findOneAndDelete({
@@ -153,6 +157,36 @@ class ApiController {
                 return res.status(404).send(errorMessage);
             } else {
                 res.sendStatus(204);
+            }
+        } catch (error) {
+            return next(error);
+        }
+    }
+
+    async getUrlStatistics(req: Request, res: Response, next) {
+        const shortCode: string = req.params.shortCode;
+
+        try {
+            const found = await ShortenedUrl.findOne({
+                shortCode: shortCode,
+            }).exec();
+
+            if (!found) {
+                const errorMessage: ErrorMessageI = {
+                    status: "error",
+                    message: "Shorted Url not found",
+                };
+                return res.status(404).send(errorMessage);
+            } else {
+                const data: ShortenedUrlI = {
+                    id: found._id.toString(),
+                    url: found.url,
+                    shortCode: found.shortCode,
+                    createdAt: found.createdAt.toISOString(),
+                    updatedAt: found.updatedAt.toISOString(),
+                    accessCount: found.accessCount,
+                };
+                res.send(data);
             }
         } catch (error) {
             return next(error);
