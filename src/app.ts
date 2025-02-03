@@ -1,14 +1,16 @@
 import express from "express";
 import "dotenv/config";
-import apiRouter from "./routes/api";
 import mongoose from "mongoose";
+import apiRouter from "./routes/api";
+import errorHandler from "./middlewares/errorHandler";
 
 const PORT: number = +(process.env.PORT || 3000);
-const MONGO_URI: string = process.env.MONGO_URI || "mongodb://localhost:27017/"
+const MONGO_URI: string = process.env.MONGO_URI || "mongodb://localhost:27017/";
 
 const app = express();
 app.use(express.json());
 app.use(apiRouter);
+app.use(errorHandler);
 
 mongoose
     .connect(MONGO_URI)

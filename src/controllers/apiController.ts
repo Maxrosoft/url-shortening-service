@@ -2,14 +2,10 @@ import { Request, Response } from "express";
 import { createHash } from "crypto";
 import validUrl from "valid-url";
 import ShortenedUrl from "../models/ShortedUrl";
+import { ErrorMessageI } from "../middlewares/errorHandler";
 
 function shortUniqueString(input: string, length: number = 8): string {
     return createHash("md5").update(input).digest("hex").slice(0, length);
-}
-
-interface ErrorMessageI {
-    status: "error";
-    message: string;
 }
 
 interface ShortenedUrlI {
